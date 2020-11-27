@@ -1,6 +1,6 @@
 CC=gcc
 #CPPFLAGS=-I/usr/include
-CFLAGS=-Wall -Werror -Wextra -Wpedantic
+CFLAGS=-Wall -Werror -Wextra -pedantic
 #CFLAGS+=-std=c99
 #LDFLAGS=-nodefaultlibs -L/usr/lib
 TARGET=myprog
