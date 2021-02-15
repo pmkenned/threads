@@ -47,14 +47,16 @@ SRC = main.c
 OBJ = $(SRC:%.c=$(BUILD_DIR)/%.o)
 DEP = $(OBJ:%.o=%.d)
 
-.PHONY: all clean
+.PHONY: all run clean
 
 all: $(BUILD_DIR)/$(TARGET)
+
+run: $(BUILD_DIR)/$(TARGET)
+	$(BUILD_DIR)/$(TARGET)
 
 $(BUILD_DIR)/$(TARGET): $(OBJ)
 	mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
-	ln -sf $(BUILD_DIR)/$(TARGET)
 
 $(BUILD_DIR)/%.o: %.c
 	mkdir -p $(@D)
