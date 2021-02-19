@@ -27,7 +27,7 @@ elif [ "$DEST_NAME" = "mac" ]; then
     DEST=(caitlinperrone@192.168.1.28:~/threads/)
 elif [ "$DEST_NAME" = "mingw" ]; then
     echo "rsync to copy to mingw"
-    DEST=(~/mingw/src/threads/)
+    DEST=(~/mingw/not_github/threads/)
 elif [ "$DEST_NAME" = "copy" ]; then
     echo "rsync to copy"
     if [[ $# -lt 2 ]]; then

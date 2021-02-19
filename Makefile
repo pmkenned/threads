@@ -1,55 +1,42 @@
-CC=gcc
-#CPPFLAGS=-I/usr/include
-CFLAGS=-Wall -Werror -Wextra -pedantic
-#CFLAGS+=-std=c99
-#LDFLAGS=-nodefaultlibs -L/usr/lib
-TARGET=myprog
-BUILD_DIR=./build
+CC = gcc
+CPPFLAGS =
+CFLAGS = -Wall -Wextra -pedantic -std=c99 -O2
+LDFLAGS = 
+LDLIBS = 
 
-#         | Input from system           | Makefile variables        | Preprocessor #defines
-#         | $OS           uname         | KERNEL      ENV           |  MINGW   CYGWIN  LINUX    OSX
-# ========|=============================|===========================|==============================
-# mingw   | Windows_NT    MINGW32_NT-*  | Windows     MINGW32_NT    |  1
-# cygwin  | Windows_NT    CYGWIN_NT-*   | Windows     CYGWIN_NT     |          1
-# WSL     | (undefined)   Linux         | Linux       Linux         |                  1
-# Mac     | (undefined)   Darwin        | Darwin      Darwin        |                           1
-
-UNAME := $(shell uname | grep -oE "MINGW32_NT|CYGWIN_NT|Linux|Darwin")
-
-ifeq ($(OS),Windows_NT)
-	KERNEL := Windows
-else
-	KERNEL := $(UNAME)
-endif
-ENV := $(UNAME)
-
-ifneq ($(ENV), MINGW32_NT)
-	LDLIBS += -lpthread
-endif
-
-ifeq ($(KERNEL),Windows)
-	ifeq ($(ENV), CYGWIN_NT)
-		CPPFLAGS += -D CYGWIN
-	endif
-	ifeq ($(ENV), MINGW32_NT)
-		CPPFLAGS += -D MINGW -D _WIN32_WINNT=_WIN32_WINNT_WIN7
-	endif
-	TARGET := $(TARGET).exe
-endif
-ifeq ($(KERNEL),Linux)
-	CPPFLAGS += -D LINUX
-endif
-ifeq ($(KERNEL),Darwin)
-	CPPFLAGS += -D OSX
-endif
-
+TARGET = myprog
+BUILD_DIR = ./build
 SRC = main.c
 OBJ = $(SRC:%.c=$(BUILD_DIR)/%.o)
 DEP = $(OBJ:%.o=%.d)
 
+include os.mk
+
+ifeq ($(KERNEL),Windows)
+	ifeq ($(ENV), CYGWIN_NT)
+		LDLIBS += -lpthread
+	endif
+	ifeq ($(ENV), MINGW32_NT)
+		CPPFLAGS += -Ic:/MinGW/include/ncursesw/
+		LDFLAGS += -Lc:/MinGW/lib/
+	endif
+	TARGET := $(TARGET).exe
+endif
+ifeq ($(KERNEL),Linux)
+	LDLIBS += -lpthread
+endif
+ifeq ($(KERNEL),Darwin)
+	LDLIBS += -lpthread
+endif
+
 .PHONY: all run clean
 
 all: $(BUILD_DIR)/$(TARGET)
+ifeq ($(ENV), MINGW32_NT)
+ifeq (,$(wildcard $(BUILD_DIR)/*.dll))
+	cp c:/MinGW/bin/libgcc_s_dw2-1.dll $(BUILD_DIR)/
+endif
+endif
 
 run: $(BUILD_DIR)/$(TARGET)
 	$(BUILD_DIR)/$(TARGET)
@@ -65,4 +52,4 @@ $(BUILD_DIR)/%.o: %.c
 -include $(DEP)
 
 clean:
-	rm -rf $(BUILD_DIR) $(TARGET)
+	rm -rf $(BUILD_DIR)
